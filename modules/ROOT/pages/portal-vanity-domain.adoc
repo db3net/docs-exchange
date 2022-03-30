@@ -76,6 +76,7 @@ This path can be any path that begins and ends with a slash (`/`). It can be the
 [source,console,linenums]
 ----
 location ~ /(shared|node_modules|icons|exchange/api-console) {
+    resolver ${DNS_RESOLVERS} valid=15;
     proxy_set_header X-Forwarded-Host $http_host;
     proxy_set_header X-Forwarded-Path ${PUBLIC_PORTAL_PATH};
 
@@ -83,13 +84,23 @@ location ~ /(shared|node_modules|icons|exchange/api-console) {
 }
 
 location /callback {
+    resolver ${DNS_RESOLVERS} valid=15;
     proxy_set_header X-Forwarded-Host $http_host;
     proxy_set_header X-Forwarded-Path ${PUBLIC_PORTAL_PATH};
 
     proxy_pass ${ANYPOINT_BASE_URL}/exchange/portals/${ORGANIZATION_DOMAIN}/callback;
 }
 
+location /resources {
+    resolver ${DNS_RESOLVERS} valid=15;
+    proxy_set_header X-Forwarded-Host $http_host;
+    proxy_set_header X-Forwarded-Path /resources;
+    proxy_pass https://anypoint.mulesoft.com/exchange/portals/merchant-e-solutions-3/resources/;
+}
+
+
 location ${PUBLIC_PORTAL_PATH} {
+    resolver ${DNS_RESOLVERS} valid=15;
     proxy_set_header X-Forwarded-Host $http_host;
     proxy_set_header X-Forwarded-Path ${PUBLIC_PORTAL_PATH};
 
@@ -104,6 +115,7 @@ With:
 ${PUBLIC_PORTAL_PATH}: Your custom path. Must end with a forward slash "/".
 ${ANYPOINT_BASE_URL}: Anypoint Platform URL for the desired region.
 ${ORGANIZATION_DOMAIN}: Your organization's domain in Anypoint Platform.
+${DNS_RESOLVERS}: A list of DNS resolver IP addresses or hostnames.
 ----
 
 For example, for the `Robocop` organization public portal with an Anypoint Platform domain of `robo-cop` to run on `+developers.robocop.com/path/of/justice/+`:
@@ -113,6 +125,7 @@ For example, for the `Robocop` organization public portal with an Anypoint Platf
 ${PUBLIC_PORTAL_PATH}: /path/of/justice/
 ${ANYPOINT_BASE_URL}: https://anypoint.mulesoft.com
 ${ORGANIZATION_DOMAIN}: robo-cop
+${DNS_RESOLVERS}:  8.8.8.8 1.1.1.1
 ----
 
 NOTE: Your server must run using `https`.
